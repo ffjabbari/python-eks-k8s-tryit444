@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const port = 3000
 
+const conn = require('./db-connector')
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
@@ -34,6 +35,10 @@ app.post('/books', (req, res) => {
 app.put('/books/:ISBN', (req, res) => {
   var inISBN = req.params.ISBN
 
+  console.log(`isbn: ${inISBN}`)
+
+  console.log("Creating tables:")
+  conn.createSchema()
   // Update all book vals
 
   // If Book not found
