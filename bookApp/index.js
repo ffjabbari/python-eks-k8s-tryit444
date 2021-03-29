@@ -64,7 +64,7 @@ app.get('/books/isbn/:ISBN', (req, res) => {
     res.json({ message: 'No ISBN Found.' })
   }, (book) => {
     res.statusCode = 200
-    res.json({ book })
+    res.json( book[0] )
   })
 })
 
@@ -94,6 +94,7 @@ app.get('/customers/:id', (req, res) => {
   if(!ID || !ID_REGEX.test(ID)) {
     res.statusCode = 400
     res.json({ message: 'Malformed Input.' })
+    return 
   }
 
   conn.getCustomer(ID, () => {
@@ -102,7 +103,7 @@ app.get('/customers/:id', (req, res) => {
     res.json({ message: 'No Customer Found.' })
   }, (customer) => {
     res.statusCode = 200
-    res.json({ customer })
+    res.json( customer[0] )
   })
   
   // Malformed input?????
@@ -115,6 +116,7 @@ app.get('/customers', (req, res) => {
   if(!userId || !EMAIL_REGEX.test(userId)) {
     res.statusCode = 400
     res.json({ message: 'Malformed input.' })
+    return
   }
   
   conn.getCustomerByEmail(userId, () => {
@@ -123,7 +125,7 @@ app.get('/customers', (req, res) => {
     res.json({ message: 'No Customer Found.' })
   }, (customer) => {
     res.statusCode = 200
-    res.json({ customer })
+    res.json( customer[0] )
   })
 })
 
