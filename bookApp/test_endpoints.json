@@ -1,0 +1,70 @@
+{
+  "config": {
+    "target": "http://localhost:3000",
+    "phases": [
+      {"duration": 10, "arrivalCount": 1}
+    ]
+  },
+  "scenarios": [
+    {
+      "name": "Basic initial tests for bookApp",
+      "flow": [
+        {"post": {
+          "url": "/books",
+          "json": {
+            "ISBN": "978-0321815736", 
+            "title": "Software Architecture in Practice", 
+            "Author": "Bass, Leonard", 
+            "description": "seminal book on software architecture", 
+            "genre": "non-fiction", 
+            "price": 59.91, 
+            "quantity": 106
+          },
+          "match":{
+            "json":"$",
+            "value": {"ISBN": "978-0321815736", "title": "Software Architecture in Practice", "Author": "Bass, Leonard", "description": "seminal book on software architecture", "genre": "non-fiction", "price": 59.91, "quantity": 106}
+          }
+         }
+        },
+        {"post": {
+          "url": "/books",
+          "json": {
+            "ISBN": "978-0321815736", 
+            "title": "Software Architecture in Practice", 
+            "Author": "Bass, Leonard", 
+            "description": "seminal book on software architecture", 
+            "genre": "non-fiction", 
+            "price": 59.91, 
+            "quantity": 106
+          },
+          "match":{
+            "json":"$.message",
+            "value": "This ISBN already exists in the system."
+          }
+         }
+        },
+        {"post": {
+          "url": "/books",
+          "json": {
+            "ISBN": "978-0321815736", 
+            "genre": "non-fiction", 
+            "price": 59.0, 
+            "quantity": 106
+          },
+          "match":{
+            "json":"$.message",
+            "value": "Malformed input."
+          }
+         }
+        },
+        {"get": {
+          "url": "/books/isbn/978-0321815736", 
+          "match":{
+            "json":"$",
+            "value": {"ISBN": "978-0321815736", "title": "Software Architecture in Practice", "Author": "Bass, Leonard", "description": "seminal book on software architecture", "genre": "non-fiction", "price": 59.91, "quantity": 106}
+          }}
+        }
+     ]
+    }
+  ]
+}
