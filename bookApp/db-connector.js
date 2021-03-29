@@ -1,48 +1,100 @@
 
-var mysql = require('mysql')
+//################ CONNECTION SETUP ################
 
+var mysql = require('mysql')
 var connection = mysql.createConnection({
-  host     : 'bookapp-db2.cmq3jk4xdq0d.us-east-1.rds.amazonaws.com',
-  user     : 'root',
-  password : 'toor-arr',
-  port     : '3306',
-  debug    : true
-  // database : 'bookapp-db',
+  host     : '',
+  user     : '',
+  password : '',
+  port     : '',
+  // debug    : true
+  database : 'Books_DB',
 })
 
-function createSchema() {
+
+//################ QUERY TEMPLATES ################
+
+var INSERT_BOOK_SQL = 'INSERT INTO books (ISBN, title, Author, description, genre, price, quantity) VALUES (?, ?, ?, ?, ?, ?, ?);'
+var UPDATE_BOOK_SQL = 'UPDATE books SET ISBN = ?, title = ?, Author = ?, description = ?, genre = ?, price = ?, quantity = ? WHERE ISBN = ?;'
+var GET_BOOK_SQL = 'SELECT * FROM books WHERE ISBN = ? LIMIT 1;'
+
+var INSERT_CUSTOMER_SQL = 'INSERT INTO customers (userId, name, phone, address, address2, city, state, zipcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?);'
+var INSERT_CUSTOMER_SQL_OPT = 'INSERT INTO customers (userId, name, phone, address, city, state, zipcode) VALUES (?, ?, ?, ?, ?, ?, ?);'
+var GET_CUSTOMER_SQL = 'SELECT * FROM customers WHERE id = ? LIMIT 1;'
+var GET_CUSTOMER_SQL_ALT = 'SELECT * FROM customers WHERE userId = ? LIMIT 1;'
+
+
+//################ QUERY HELPERS ################
+
+function testConnection() {
   connection.connect(function(err) {
     if (err) {
       console.error('Database connection failed: ' + err.stack)
       connection.end()
     } else {
-      console.log('Connection SUCCESS')
+      console.log('Connection success')
       connection.end()
     }
-
-    // Create BOOKS
-    // var sql = "CREATE TABLE books (id INT NOT NULL AUTO_INCREMENT, ISBN VARCHAR(255), title VARCHAR(255), Author VARCHAR(255), description VARCHAR(255), genre VARCHAR(255), price DECIMAL(7,2), quantity INT)"
-    // connection.query(sql, function (err, result) {
-    //   if (err) {
-    //     console.error(err)
-    //   } else {
-    //     console.log("Books created")
-    //   }
-    //   connection.end()
-    // })
-
-    // // Create CUSTOMERS
-    // var sql = "CREATE TABLE customers (id INT NOT NULL AUTO_INCREMENT, userId VARCHAR(255), name VARCHAR(255), phone VARCHAR(255), address VARCHAR(255), address2 VARCHAR(255), city VARCHAR(255), state VARCHAR(2), zipcode VARCHAR(5))"
-    // connection.query(sql, function (err, result) {
-    //   if (err) {
-    //     console.error(err)
-    //   } else {
-    //     console.log("Customers created")
-    //   }
-    //   connection.end()
-    // })
   })
 }
 
 
-module.exports = { createSchema }
+//################ BOOK QUERIES ################
+
+function createBook(ISBN, title, Author, description, genre, price, quantity, exists, success){
+  connection.query(INSERT_BOOK_SQL, [ISBN, title, Author, description, genre, price, quantity], function (err, result) {
+    if (err) { exists() } 
+    else { success() }
+  })
+}
+
+function getBook(ISBN, notFound, success){
+  connection.query(GET_BOOK_SQL, [ISBN], function (err, result) {
+    if (err || result.length == 0) { notFound() } 
+    else { success(result) }
+  })
+}
+
+function updateBook(oldISBN, ISBN, title, Author, description, genre, price, quantity, notFound, success){
+  connection.query(UPDATE_BOOK_SQL, [ISBN, title, Author, description, genre, price, quantity, oldISBN], function (err, result) {
+    if (err || result.affectedRows == 0) { notFound() } 
+    else { success() }
+  })
+}
+
+
+//################ CUSTOMER QUERIES ################
+
+function createCustomer(userId, name, phone, address, address2, city, state, zipcode, exists, success){
+  var sqlTemplate = INSERT_CUSTOMER_SQL
+  var params = [userId, name, phone, address, address2, city, state, zipcode]
+
+  if(!address2) { 
+    sqlTemplate=INSERT_CUSTOMER_SQL_OPT 
+    params = [userId, name, phone, address, city, state, zipcode]
+  }
+
+  connection.query(sqlTemplate, params, function (err, result) {
+    if (err) { exists() } 
+    else { success(result.insertId) }
+  })
+}
+
+function getCustomer(ID, notFound, success){
+  connection.query(GET_CUSTOMER_SQL, [ID], function (err, result) {
+    if (err || result.length == 0) { notFound() } 
+    else { success(result) }
+  })
+}
+
+function getCustomerByEmail(userId, notFound, success){
+  connection.query(GET_CUSTOMER_SQL_ALT, [userId], function (err, result) {
+    if (err || result.length == 0) { notFound() } 
+    else { success(result) }
+  })
+}
+
+
+//################ MODULE EXPORT ################
+
+module.exports = { testConnection, createBook, updateBook, getBook, createCustomer, getCustomer, getCustomerByEmail }

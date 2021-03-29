@@ -1,17 +1,22 @@
+//################ IMPORTS ################ 
+
 const express = require('express')
 const bodyParser = require('body-parser')
 const port = 3000
 
 const conn = require('./db-connector')
 const app = express()
+
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(bodyParser.raw())
+
 
 //################ CONSTANTS ################ 
 
 var PRICE_REGEX = /^\d+\.\d{2}$/
 var EMAIL_REGEX = /^[\w-]+@[^\s@]+$/
+var ID_REGEX = /^\d+$/
 var STATES_ABBR = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]
 
 
@@ -19,52 +24,48 @@ var STATES_ABBR = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "
 
 // Add Book:
 app.post('/books', (req, res) => {
-  validateBook(req, res)
+  if(!validateBook(req, res)) return
   
-  // If exists
-  res.statusCode = 422
-  res.json({ message: 'This ISBN already exists in the system.' })
-
-  res.statusCode = 201
-  res.location(`/books/${req.body.ISBN}`)
-  res.json(req.body)
+  conn.createBook(req.body.ISBN, req.body.title, req.body.Author, req.body.description, req.body.genre, req.body.price, req.body.quantity, () => {
+    // If Already Exists
+    res.statusCode = 422
+    res.json({ message: 'This ISBN already exists in the system.' })
+  }, () => {
+    // Success
+    res.statusCode = 201
+    res.location(`/books/${req.body.ISBN}`)
+    res.json(req.body)
+  })
 })
 
 // Update Book:
 // !!! VALIDATE ADMIN 
 app.put('/books/:ISBN', (req, res) => {
-  var inISBN = req.params.ISBN
+  if(!validateBook(req, res)) return
+  var oldISBN = req.params.ISBN
 
-  console.log(`isbn: ${inISBN}`)
-
-  console.log("Creating tables:")
-  conn.createSchema()
-  // Update all book vals
-
-  // If Book not found
-  res.statusCode = 404
-  res.json({ message: 'No ISBN Found.' })
-
-  validateBook(req, res)
-
-  res.statusCode = 200
-  res.json(req.body)
+  conn.updateBook(oldISBN, req.body.ISBN, req.body.title, req.body.Author, req.body.description, req.body.genre, req.body.price, req.body.quantity, () => {
+    // If Book not found
+    res.statusCode = 404
+    res.json({ message: 'No ISBN Found.' })
+  }, () => {
+    res.statusCode = 200
+    res.json(req.body)
+  })
 })
 
 // Retrieve Book:
 app.get('/books/isbn/:ISBN', (req, res) => {
-  console.log(`URL PARAM: /books/${req.params.ISBN}`)
+  var ISBN = req.params.ISBN
 
-  // Get book 
-  // var book = 
-
-  // If Book not found
-  res.statusCode = 404
-  res.json({ message: 'No ISBN Found.' })
-
-  // RETURN BOOK
-  res.statusCode = 200
-  res.json({ field: '?' })
+  conn.getBook(ISBN, () => {
+    // If Book not found
+    res.statusCode = 404
+    res.json({ message: 'No ISBN Found.' })
+  }, (book) => {
+    res.statusCode = 200
+    res.json({ book })
+  })
 })
 
 
@@ -72,57 +73,60 @@ app.get('/books/isbn/:ISBN', (req, res) => {
 
 // Add Customer:
 app.post('/customers', (req, res) => {
-  validateCustomer(req, res)
+  if(!validateCustomer(req, res)) return
 
-  // If Customer exists
-  res.statusCode = 422
-  res.json({ message: 'This user ID already exists in the system.' })
-
-  // RETURN CUSTOMER
-  res.statusCode = 201
-  var custID = 121123
-  res.location(`/customers/${custID}`)
-  res.json({ field: '?' })
+  conn.createCustomer(req.body.userId, req.body.name, req.body.phone, req.body.address, req.body.address2, req.body.city, req.body.state, req.body.zipcode, () => {
+    // If Customer exists
+    res.statusCode = 422
+    res.json({ message: 'This user ID already exists in the system.' })
+  }, (customerId) => {
+    req.body['id'] = customerId
+    res.statusCode = 201
+    res.location(`/customers/${customerId}`)
+    res.json(req.body)
+  })  
 })
 
 // Retrieve Customer by ID:
 app.get('/customers/:id', (req, res) => {
-  console.log(`URL PARAM: ${req.params.id}`)
+  var ID = req.params.id
 
-  // Malformed input?????
+  if(!ID || !ID_REGEX.test(ID)) {
+    res.statusCode = 400
+    res.json({ message: 'Malformed Input.' })
+  }
+
+  conn.getCustomer(ID, () => {
+    // If cust not found
+    res.statusCode = 404
+    res.json({ message: 'No Customer Found.' })
+  }, (customer) => {
+    res.statusCode = 200
+    res.json({ customer })
+  })
   
-  // Get cust
-  // var cust = 
-
-  // If cust not found
-  res.statusCode = 404
-  res.json({ message: 'No Customer Found.' })
-
-  // RETURN CUST
-  res.statusCode = 200
-  res.json({ field: '?' })
+  // Malformed input?????
 })
 
 // Retrieve Customer by EMAIL QUERY PARAM:
 app.get('/customers', (req, res) => {
-  console.log(`QUERY PARAM: ${req.query.userId}`)
+  var userId = req.query.userId
 
-  if(!req.query.userId) {
+  if(!userId || !EMAIL_REGEX.test(userId)) {
     res.statusCode = 400
     res.json({ message: 'Malformed input.' })
   }
   
-  // Get cust
-  // var cust = 
-
-  // If cust not found
-  res.statusCode = 404
-  res.json({ message: 'No Customer Found.' })
-
-  // RETURN CUST
-  res.statusCode = 200
-  res.json({ field: '?' })
+  conn.getCustomerByEmail(userId, () => {
+    // If cust not found
+    res.statusCode = 404
+    res.json({ message: 'No Customer Found.' })
+  }, (customer) => {
+    res.statusCode = 200
+    res.json({ customer })
+  })
 })
+
 
 //################ VIEW HELPERS ################ 
 
@@ -140,7 +144,9 @@ function validateBook(req, res) {
   ){
     res.statusCode = 400
     res.json({ message: 'Malformed input.' })
+    return false
   }
+  return true
 }
 
 function validateCustomer(req, res) {
@@ -159,7 +165,9 @@ function validateCustomer(req, res) {
   ){
     res.statusCode = 400
     res.json({ message: 'Malformed input.' })
+    return false
   }
+  return true
 }
 
 app.listen(port, () => {
