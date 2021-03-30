@@ -44,14 +44,28 @@ app.put('/books/:ISBN', (req, res) => {
   if(!validateBook(req, res)) return
   var oldISBN = req.params.ISBN
 
-  conn.updateBook(oldISBN, req.body.ISBN, req.body.title, req.body.Author, req.body.description, req.body.genre, req.body.price, req.body.quantity, () => {
-    // If Book not found
-    res.statusCode = 404
-    res.json({ message: 'No ISBN Found.' })
-  }, () => {
-    res.statusCode = 200
-    res.json(req.body)
-  })
+  if(oldISBN == req.body.ISBN){
+    callToUpdate()
+  } else {
+    conn.getBook(req.body.ISBN, () => {
+      // If Book not found (newISBN)
+      callToUpdate()
+    }, () => {
+      res.statusCode = 422
+      res.json({ message: 'The new ISBN already exists in the system.' }) // The logic is inverted — checks whether the NEW isbn exists BEFORE checking the OLD one
+    })
+  }
+
+  function callToUpdate(){
+    conn.updateBook(oldISBN, req.body.ISBN, req.body.title, req.body.Author, req.body.description, req.body.genre, req.body.price, req.body.quantity, () => {
+      // If Book not found (oldISBN)
+      res.statusCode = 404
+      res.json({ message: 'No ISBN Found.' })
+    }, () => {
+      res.statusCode = 200
+      res.json(req.body)
+    })
+  }
 })
 
 // Retrieve Book:
@@ -173,6 +187,7 @@ function validateCustomer(req, res) {
 }
 
 app.listen(port, () => {
+  conn.setRDSConnection()
   console.log(`Example app listening at http://localhost:${port}`)
 })
 

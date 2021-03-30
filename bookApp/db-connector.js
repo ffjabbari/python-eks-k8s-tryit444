@@ -1,15 +1,8 @@
 
 //################ CONNECTION SETUP ################
 
-var mysql = require('mysql')
-var connection = mysql.createConnection({
-  host     : '',
-  user     : '',
-  password : '',
-  port     : '',
-  // debug    : true
-  database : 'Books_DB',
-})
+var MYSQL = require('mysql')
+var CONNECTION
 
 
 //################ QUERY TEMPLATES ################
@@ -27,36 +20,55 @@ var GET_CUSTOMER_SQL_ALT = 'SELECT * FROM customers WHERE userId = ? LIMIT 1;'
 //################ QUERY HELPERS ################
 
 function testConnection() {
-  connection.connect(function(err) {
+  CONNECTION.connect(function(err) {
     if (err) {
       console.error('Database connection failed: ' + err.stack)
-      connection.end()
+      CONNECTION.end()
     } else {
       console.log('Connection success')
-      connection.end()
+      CONNECTION.end()
     }
   })
+}
+
+function setRDSConnection(){
+  CONNECTION = MYSQL.createConnection({
+    host     : 'my-stock-db.cmq3jk4xdq0d.us-east-1.rds.amazonaws.com',
+    user     : 'root',
+    password : 'toor-arr',
+    port     : '3306',
+    database : 'Books_DB',
+  })
+  
+  CONNECTION.on('error', function(err) {
+    if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
+      console.log('Connection Disconnect... Retrying in 2 seconds', err);
+      setTimeout(setRDSConnection, 2000);                         
+    } else {                                      
+      throw err;                                  
+    }
+  });
 }
 
 
 //################ BOOK QUERIES ################
 
 function createBook(ISBN, title, Author, description, genre, price, quantity, exists, success){
-  connection.query(INSERT_BOOK_SQL, [ISBN, title, Author, description, genre, price, quantity], function (err, result) {
+  CONNECTION.query(INSERT_BOOK_SQL, [ISBN, title, Author, description, genre, price, quantity], function (err, result) {
     if (err) { exists() } 
     else { success() }
   })
 }
 
 function getBook(ISBN, notFound, success){
-  connection.query(GET_BOOK_SQL, [ISBN], function (err, result) {
+  CONNECTION.query(GET_BOOK_SQL, [ISBN], function (err, result) {
     if (err || result.length == 0) { notFound() } 
     else { success(result) }
   })
 }
 
 function updateBook(oldISBN, ISBN, title, Author, description, genre, price, quantity, notFound, success){
-  connection.query(UPDATE_BOOK_SQL, [ISBN, title, Author, description, genre, price, quantity, oldISBN], function (err, result) {
+  CONNECTION.query(UPDATE_BOOK_SQL, [ISBN, title, Author, description, genre, price, quantity, oldISBN], function (err, result) {
     if (err || result.affectedRows == 0) { notFound() } 
     else { success() }
   })
@@ -74,21 +86,21 @@ function createCustomer(userId, name, phone, address, address2, city, state, zip
     params = [userId, name, phone, address, city, state, zipcode]
   }
 
-  connection.query(sqlTemplate, params, function (err, result) {
+  CONNECTION.query(sqlTemplate, params, function (err, result) {
     if (err) { exists() } 
     else { success(result.insertId) }
   })
 }
 
 function getCustomer(ID, notFound, success){
-  connection.query(GET_CUSTOMER_SQL, [ID], function (err, result) {
+  CONNECTION.query(GET_CUSTOMER_SQL, [ID], function (err, result) {
     if (err || result.length == 0) { notFound() } 
     else { success(result) }
   })
 }
 
 function getCustomerByEmail(userId, notFound, success){
-  connection.query(GET_CUSTOMER_SQL_ALT, [userId], function (err, result) {
+  CONNECTION.query(GET_CUSTOMER_SQL_ALT, [userId], function (err, result) {
     if (err || result.length == 0) { notFound() } 
     else { success(result) }
   })
@@ -97,4 +109,4 @@ function getCustomerByEmail(userId, notFound, success){
 
 //################ MODULE EXPORT ################
 
-module.exports = { testConnection, createBook, updateBook, getBook, createCustomer, getCustomer, getCustomerByEmail }
+module.exports = { testConnection, setRDSConnection, createBook, updateBook, getBook, createCustomer, getCustomer, getCustomerByEmail }
