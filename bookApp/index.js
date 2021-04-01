@@ -14,7 +14,7 @@ app.use(bodyParser.raw())
 
 //################ CONSTANTS ################ 
 
-var PRICE_REGEX = /^\d+\.\d{2}$/
+var PRICE_REGEX = /^\d+(\.(\d{2}|0))?$/   // 10 | 10.0 | 10.01 are all valid
 var EMAIL_REGEX = /^[\w-]+@[^\s@]+$/
 var ID_REGEX = /^\d+$/
 var STATES_ABBR = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]
@@ -33,7 +33,7 @@ app.post('/books', (req, res) => {
   }, () => {
     // Success
     res.statusCode = 201
-    res.location(`/books/${req.body.ISBN}`)
+    res.location(`${req.headers.host}/books/${req.body.ISBN}`)
     res.json(req.body)
   })
 })
@@ -96,7 +96,7 @@ app.post('/customers', (req, res) => {
   }, (customerId) => {
     req.body['id'] = customerId
     res.statusCode = 201
-    res.location(`/customers/${customerId}`)
+    res.location(`${req.headers.host}/customers/${customerId}`)
     res.json(req.body)
   })  
 })

@@ -33,11 +33,11 @@ function testConnection() {
 
 function setRDSConnection(){
   CONNECTION = MYSQL.createConnection({
-    host     : 'my-stock-db.cmq3jk4xdq0d.us-east-1.rds.amazonaws.com',
-    user     : 'root',
-    password : 'toor-arr',
-    port     : '3306',
-    database : 'Books_DB',
+    host     : '',
+    user     : '',
+    password : '',
+    port     : '',
+    database : '',
   })
   
   CONNECTION.on('error', function(err) {
