@@ -9,14 +9,16 @@ sudo apt-get install npm
 
 echo "Copying Over Assets"
 
-cp /vagrant/bookApp/{index.js,db-connector.js,package.json,Dockerfile,test_endpoints.json} .
+sudo cp /vagrant/bookApp/{index.js,db-connector.js,package.json,Dockerfile,test_endpoints.json} .
 
 echo "Installing Dependencies"
 
-npm install
+sudo npm install
 
-# echo "Testing the Application"
-# artillery run test_endpoints.json
+echo "Testing the Application"
+
+sudo npm install -D artillery@1.6 --save
+sudo artillery run test_endpoints.json
 
 # echo "Building the Docker Image"
 # docker build --tag bookapp:1.0 .
