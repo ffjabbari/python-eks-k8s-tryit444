@@ -28,11 +28,7 @@ function testConnection() {
 
 function setRDSConnection(){
   CONNECTION = MYSQL.createConnection({
-    host     : '',
-    user     : '',
-    password : '',
-    port     : '',
-    database : '',
+    
   })
   
   CONNECTION.on('error', function(err) {

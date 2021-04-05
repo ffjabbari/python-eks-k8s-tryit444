@@ -1,5 +1,6 @@
 .vagrant/*
 */node_modules/*
+*/pythonEnv/*
 A1.pdf
 TestScript.json
 *.zip
