@@ -11,7 +11,7 @@ app = Flask(__name__)
 SERVER_HOST = '0.0.0.0'
 SERVER_PORT = 80
 
-BOOK_SERVICE_HOST = 'http://localhost:3001/books'
+BOOK_SERVICE_HOST = 'http://172.31.92.239:3002/books'
 VALID_AUTH_TOKEN = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJLUkFNRVJTIiwibHVscyI6IktSQU1FUlMiLCJjcmVhdGVkIjoxNjE3MjMwNzUxM zIwLCJyb2xlcyI6W10sImlzcyI6InRjdS5nb3YuYnIiLCJlaW8iOiIxMC4xMDAuMTkyLjUxIiwibnVzIjoiSk9BTyBBTkR PTklPUyBTUFlSSURBS0lTIiwibG90IjoiU2VnZWMiLCJhdWQiOiJPUklHRU1fUkVRVUVTVF9CUk9XU0VSIiwidHVzIjoiV ENVIiwiY3VscyI6MjI1LCJjb2QiOjIyNSwiZXhwIjoxNjE3MjczOTUxMzIwLCJudWxzIjoiSk9BTyBBTkRPTklPUyBTUFl SSURBS0lTIn0.qtJ0Sf2Agqd_JmxGKfqiLw8SldOiP9e21OT4pKC8BqdXrJ0plqOWHf0hHbwQWp-foEBZzAUWX0J-QHtLy Q7SRw'
 
 
@@ -117,4 +117,5 @@ def getResponseFor(serviceRes):
 # RUN APP
 
 if __name__ == '__main__':
-      app.run(host=SERVER_HOST, port=SERVER_PORT)
+  print('bookBFF listening @ {}:{}'.format(SERVER_HOST, SERVER_PORT))
+  app.run(host=SERVER_HOST, port=SERVER_PORT)

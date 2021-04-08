@@ -106,7 +106,7 @@ function validateBook(req, res) {
 
 app.listen(port, () => {
   conn.setRDSConnection()
-  console.log(`Example app listening at http://localhost:${port}`)
+  console.log(`bookService listening @ http://localhost:${port}`)
 })
 
 
