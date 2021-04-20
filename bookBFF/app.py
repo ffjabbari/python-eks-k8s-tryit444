@@ -11,7 +11,8 @@ app = Flask(__name__)
 SERVER_HOST = '0.0.0.0'
 SERVER_PORT = 80
 
-BOOK_SERVICE_HOST = 'http://172.31.92.239:3002/books'
+RECC_CIRCUIT_BREAKER_HOST = 'http://10.100.236.41:83/books'
+BOOK_SERVICE_HOST = 'http://10.100.144.244:3002/books'
 VALID_AUTH_TOKEN = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJLUkFNRVJTIiwibHVscyI6IktSQU1FUlMiLCJjcmVhdGVkIjoxNjE3MjMwNzUxM zIwLCJyb2xlcyI6W10sImlzcyI6InRjdS5nb3YuYnIiLCJlaW8iOiIxMC4xMDAuMTkyLjUxIiwibnVzIjoiSk9BTyBBTkR PTklPUyBTUFlSSURBS0lTIiwibG90IjoiU2VnZWMiLCJhdWQiOiJPUklHRU1fUkVRVUVTVF9CUk9XU0VSIiwidHVzIjoiV ENVIiwiY3VscyI6MjI1LCJjb2QiOjIyNSwiZXhwIjoxNjE3MjczOTUxMzIwLCJudWxzIjoiSk9BTyBBTkRPTklPUyBTUFl SSURBS0lTIn0.qtJ0Sf2Agqd_JmxGKfqiLw8SldOiP9e21OT4pKC8BqdXrJ0plqOWHf0hHbwQWp-foEBZzAUWX0J-QHtLy Q7SRw'
 
 
@@ -48,6 +49,25 @@ def isMobileAgent(req):
 
   
 # ROUTES 
+
+@app.route('/books/<isbn>/related-books', methods=['GET'])
+def getBookReccomendation(isbn=None):
+  response = responseIfInvalidRequest(request)
+  if response: 
+    return response
+
+  path = '/{}/related-books'.format(isbn)
+  serviceRes = requests.get(RECC_CIRCUIT_BREAKER_HOST+path)
+
+  if serviceRes.status_code == 204:
+    return app.response_class(
+      response=json.dumps({}),
+      status=204,
+      mimetype='application/json'
+    )
+
+  return getResponseFor(serviceRes)
+
 
 @app.route('/books', methods=['POST'])
 def addBook():
