@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-app-breaker-service
+  namespace: book-app
+spec:
+  type: LoadBalancer
+  selector:
+      app: rec-breaker
+  ports:
+  - port: 83
+    name: rec-breaker
+    targetPort: 80
+  - port: 80
+    name: rec-service
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rec-breaker
+  namespace: book-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rec-breaker
+  template:
+    metadata:
+      labels:
+        app: rec-breaker
+    spec:
+      containers:
+      - name: rec-breaker
+        image: fibdocker/rec_breaker:1.0 
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+      - name: rec-service
+        image: pmerson/book-recommendations-ms:latest 
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        

@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-app-service
+  namespace: book-app 
+spec:
+  type: LoadBalancer
+  selector:
+      app: book-bff
+  ports:
+  - port: 82
+    name: book-bff
+    targetPort: 80
+  - port: 3002
+    name: book-service
+    targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-bff
+  namespace: book-app
+spec:
+  replicas: 1 # MAKE THIS 2
+  selector:
+    matchLabels:
+      app: book-bff
+  template:
+    metadata:
+      labels:
+        app: book-bff
+    spec:
+      containers:
+      - name: book-bff
+        image: fibdocker/book_bff:1.0 
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+      - name: book-service
+        image: fibdocker/book_service:1.0 
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        
