@@ -125,7 +125,17 @@ def getCustomerByQueryParam():
   return response
 
 
+# STATUS ROUTE - for liveness check
 
+@app.route('/status', methods=['GET'])
+def getStatus():
+  return app.response_class(
+    response=json.dumps({}),
+    status=200,
+    mimetype='application/json'
+  )
+
+  
 # HELPERS 
 
 def getResponseFor(serviceRes):

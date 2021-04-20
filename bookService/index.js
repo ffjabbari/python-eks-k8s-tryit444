@@ -79,6 +79,12 @@ app.get('/books/isbn/:ISBN', (req, res) => {
   })
 })
 
+// Get Status: Liveness Check
+app.get('/status', (req, res) => {
+  res.statusCode = 200
+  res.json({})
+})
+
 
 //################ VIEW HELPERS ################ 
 

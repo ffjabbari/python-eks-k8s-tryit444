@@ -59,6 +59,17 @@ def getBookReccomendation(isbn=None):
     )
 
 
+# STATUS ROUTE - for liveness check
+
+@app.route('/status', methods=['GET'])
+def getStatus():
+  return app.response_class(
+    response=json.dumps({}),
+    status=200,
+    mimetype='application/json'
+  )
+
+  
 # RUN APP
 
 if __name__ == '__main__':

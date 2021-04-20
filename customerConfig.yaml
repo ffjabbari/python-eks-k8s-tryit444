@@ -19,6 +19,8 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels: 
+    test: liveness
   name: customer-bff
   namespace: book-app
 spec:
@@ -37,9 +39,21 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
       - name: customer-service
         image: fibdocker/customer_service:1.0 
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
         

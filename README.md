@@ -1,6 +1,6 @@
 # booksApp - A microservice template
 
-##### My sample microservice architecture (for Books management):
+#### My sample microservice architecture (for Books management):
 
 This project uses a MySQL `AWS RDS` backend, and a lightweight `k8s`/`Docker`orchestration running on`AWS EKS`.
 
@@ -8,7 +8,7 @@ This project uses a MySQL `AWS RDS` backend, and a lightweight `k8s`/`Docker`orc
 
 ### Bundled with...
 
-##### 2 independently scalable microservices:
+#### 2 independently scalable microservices:
 
 1. bookService
 2. customerService
@@ -16,7 +16,7 @@ This project uses a MySQL `AWS RDS` backend, and a lightweight `k8s`/`Docker`orc
 * each running NodeJS / Express API
 * handle biz & logic concerns
 
-##### 2 BFFs (backend-for-frontends)
+#### 2 BFFs (backend-for-frontends)
 
 1. bookBFF
 2. customerBFF
@@ -25,7 +25,7 @@ This project uses a MySQL `AWS RDS` backend, and a lightweight `k8s`/`Docker`orc
 * handle header parsing, auth, and response transformations
   * (on a user-client basis — ie. different responses for Desktop / Mobile)
 
-##### & 1 Circuit Breaker (for an external service)
+#### & 1 Circuit Breaker (for an external service)
 
 1. reccCircuitBreaker
 
@@ -39,6 +39,8 @@ This project uses a MySQL `AWS RDS` backend, and a lightweight `k8s`/`Docker`orc
 Config files for k8s deployment are provided at the top-level project directory.
 
 1. Apply the k8s config with: `kubectl apply -f circuitBreakerConfig.yaml -f bookConfig.yaml -f customerConfig.yaml`
+   * Each container has a **5 second liveness check**
+   * The books services have 2 replicas, while customers have 1
 2. See all services / pods: `kubectl get all -n book-app`
 
 **Other Helpful Commands****
