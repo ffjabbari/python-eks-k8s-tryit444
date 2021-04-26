@@ -42,3 +42,7 @@ VALUES ("bj@gmail.com", "Bob Jones", "1231231234", "800 Albany Post Road", "New 
 
 SELECT * FROM customers LIMIT 10;
 -- SELECT * FROM customers WHERE id = 7 LIMIT 10;
+
+-- DROPs 
+DELETE FROM customers; 
+DELETE FROM books;

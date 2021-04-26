@@ -1,4 +1,4 @@
-# booksApp - A microservice template
+# booksApp - A microservice arch template
 
 #### My sample microservice architecture (for Books management):
 
@@ -30,7 +30,7 @@ This project uses a MySQL `AWS RDS` backend, and a lightweight `k8s`/`Docker`orc
 1. reccCircuitBreaker
 
 * Sets a 3 minute timeout for calls to the service and returns error codes appropriately
-  * 504 - Timeout / 503 - Closed Circuit / 204 - Not Found / 200 - Success
+  * `504` - Timeout | `503` - Closed Circuit | `204` - Not Found | `200` - Success
 
 <hr>
 
@@ -50,15 +50,17 @@ Config files for k8s deployment are provided at the top-level project directory.
 3. Describe Pod: `kubectl describe pods -n book-app <POD ID>`
 4. Restart Deployment (ie. after updating some container): `kubectl rollout restart deployment <DEPLOYMENT NAME> -n book-app`
 
-##### Additional Infrastructure as Code / *IAC*
+##### Additional IAC / *Infrastructure as Code*
 
-* All the services can be deployed via Docker (Dockerfiles provided in each respective directory)
-  * See the [setup script](vmSetup.sh) for help with a docker deployment
-* A `Vagrantfile` & `vmSetup.sh` scripts are provided for setting up a development env in a VM
+* All the services can be deployed via Docker (Dockerfiles provided in each respective directory):
+  * See the [setup script](vagrant_scripts/vmSetup.sh) for help with docker deployment
+* Setting up a Dev & Test environment (in a VM):
+  * A `Vagrantfile` & `/vagrant_scripts/` are provided for provisioning *both*
+    * update the Vagrantfile to use whichever script you'd like
   * Install `Vagrant` & `VirtualBox`
   * run `vagrant up` to start the VM
   * run `vagrant ssh` to enter the VM
-* An artillery testing script (in the root dir) is provided for one of the services
-  * see the [setup script](vmSetup.sh) for help running it
+* Test scripts are provided in `/tests/`:
+  * see the [setup script](vagrant_scripts/vmSetup.sh) for help running it
 
 ### mk

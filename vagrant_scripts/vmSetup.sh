@@ -14,7 +14,7 @@ sudo cp /vagrant/bookBFF/ .
 sudo cp /vagrant/customerService/ .
 sudo cp /vagrant/customerBFF/ .
 
-sudo cp /vagrant/test_bookBFF.json . # TEST FILE
+sudo cp -a /vagrant/tests/. /home/vagrant # TEST FILES
 
 echo "Installing Dependencies"
 
@@ -22,8 +22,9 @@ sudo npm install
 
 echo "Testing the Application"
 
-sudo npm install -D artillery@1.6 --save
-sudo artillery run test_endpoints.json
+sudo npm install -g artillery@latest
+sudo npm install -g artillery-plugin-expect
+# sudo artillery run test_bookBFF.yml
 
 # echo "Building the Docker Images"
 # cd /bookService
