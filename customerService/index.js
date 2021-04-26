@@ -2,6 +2,7 @@
 
 const express = require('express')
 const bodyParser = require('body-parser')
+const sqsConn = require('./sqs-connector') 
 const port = 3000
 
 const conn = require('./db-connector')
@@ -34,6 +35,8 @@ app.post('/customers', (req, res) => {
     res.statusCode = 201
     res.location(`${req.headers.host}/customers/${customerId}`)
     res.json(req.body)
+
+    sqsConn.sendNewCustomerMessage(req.body) // PING SQS QUEUE
   })  
 })
 
