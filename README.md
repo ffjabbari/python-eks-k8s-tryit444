@@ -15,6 +15,7 @@ This project uses a MySQL `AWS RDS` backend, and a lightweight `k8s`/`Docker`orc
 
 * each running NodeJS / Express API
 * handle biz & logic concerns
+* Integrated with an `AWS SQS` broker
 
 #### 2 BFFs (backend-for-frontends)
 

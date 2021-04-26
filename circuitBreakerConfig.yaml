@@ -12,9 +12,6 @@ spec:
   - port: 83
     name: rec-breaker
     targetPort: 80
-  - port: 80
-    name: rec-service
-    targetPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -45,9 +42,4 @@ spec:
             port: 80
           initialDelaySeconds: 5
           periodSeconds: 5
-      - name: rec-service
-        image: pmerson/book-recommendations-ms:latest 
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 8080
         

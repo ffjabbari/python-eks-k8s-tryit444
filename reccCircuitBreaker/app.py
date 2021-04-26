@@ -12,7 +12,7 @@ app = Flask(__name__)
 SERVER_HOST = '0.0.0.0'
 SERVER_PORT = 80
 
-RECC_ENGINE_HOST = 'http://10.100.236.41:80/recommended-titles/isbn'
+RECC_ENGINE_HOST = 'http://3.131.68.68:80/recommended-titles/isbn'
 REQ_TIMEOUT = 3
 BREAKER_LAST_OPENED = None
 
