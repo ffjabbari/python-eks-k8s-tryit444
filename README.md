@@ -1,8 +1,12 @@
 # booksApp - A microservice arch template
 
-#### My sample microservice architecture (for Books management):
+#### My microservice architecture skeleton:
 
-This project uses a MySQL `AWS RDS` backend, and a lightweight `k8s`/`Docker`orchestration running on`AWS EKS`.
+Running on...
+
+* a MySQL `AWS RDS` DB
+* a `AWS ES` ElasticSearch query engine & `AWS SQS` broker
+* **lightweight `k8s`/`Docker`orchestration for `AWS EKS` / `EC2`**
 
 <hr>
 
@@ -30,8 +34,8 @@ This project uses a MySQL `AWS RDS` backend, and a lightweight `k8s`/`Docker`orc
 
 1. reccCircuitBreaker
 
-* Sets a 3 minute timeout for calls to the service and returns error codes appropriately
-  * `504` - Timeout | `503` - Closed Circuit | `204` - Not Found | `200` - Success
+* Sets a 3 second timeout for calls to the service and returns error codes appropriately
+  * `504` - Timeout | `503` - Open Circuit | `204` - Not Found | `200` - Success
 
 <hr>
 
@@ -63,5 +67,9 @@ Config files for k8s deployment are provided at the top-level project directory.
   * run `vagrant ssh` to enter the VM
 * Test scripts are provided in `/tests/`:
   * see the [setup script](vagrant_scripts/vmSetup.sh) for help running it
+
+##### Final k8s Setup:
+
+<img src="vagrant_scripts/final_k8s_setup.png" height="100%" alt="Final k8s Architecture">
 
 ### mk
