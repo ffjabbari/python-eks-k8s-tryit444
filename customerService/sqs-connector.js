@@ -5,9 +5,6 @@ const AWS = require('aws-sdk');
 
 AWS.config.update({region: 'us-east-1'});
 AWS.config.update({
-  accessKeyId: 'AKIAWQWWY3WMZBY2YZPJ',
-  secretAccessKey: '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',
-  region: 'us-east-1'
 })
 
 
