@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const port = 3000
 
 const conn = require('./db-connector')
+const esConn = require('./es-connector')
 const app = express()
 
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -32,6 +33,8 @@ app.post('/books', (req, res) => {
     res.statusCode = 201
     res.location(`${req.headers.host}/books/${req.body.ISBN}`)
     res.json(req.body)
+    
+    esConn.postBook(req.body.ISBN, req.body) // Update ES
   })
 })
 
@@ -61,6 +64,8 @@ app.put('/books/:ISBN', (req, res) => {
     }, () => {
       res.statusCode = 200
       res.json(req.body)
+
+      esConn.putBook(oldISBN, req.body)
     })
   }
 })
@@ -68,14 +73,14 @@ app.put('/books/:ISBN', (req, res) => {
 // Retrieve Book:
 app.get('/books/isbn/:ISBN', (req, res) => {
   var ISBN = req.params.ISBN
-
-  conn.getBook(ISBN, () => {
+  
+  esConn.getBook(ISBN, () => {
     // If Book not found
     res.statusCode = 404
     res.json({ message: 'No ISBN Found.' })
   }, (book) => {
     res.statusCode = 200
-    res.json( book[0] )
+    res.json( book )
   })
 })
 
