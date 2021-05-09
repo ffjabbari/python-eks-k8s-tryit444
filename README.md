@@ -1,12 +1,16 @@
 # booksApp - A microservice arch template
 
-#### My microservice architecture skeleton:
+#### My Sample Event-Driven Architecture:
 
 Running on...
 
 * a MySQL `AWS RDS` DB
 * a `AWS ES` ElasticSearch query engine & `AWS SQS` broker
+  * great Command/Query Responsibility Separation!
 * **lightweight `k8s`/`Docker`orchestration for `AWS EKS` / `EC2`**
+
+<img src="vagrant_scripts/EDA_Diagram.png" alt="Final k8s Architecture">
+
 
 <hr>
 
@@ -19,7 +23,7 @@ Running on...
 
 * each running NodeJS / Express API
 * handle biz & logic concerns
-* Integrated with an `AWS SQS` broker
+* Integrated w/`AWS SQS`, `RDS`, & `ES`
 
 #### 2 BFFs (backend-for-frontends)
 
