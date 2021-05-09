@@ -16,6 +16,7 @@ app.use(bodyParser.raw())
 //################ CONSTANTS ################ 
 
 var PRICE_REGEX = /^\d+(\.(\d{2}|0))?$/   // 10 | 10.0 | 10.01 are all valid
+const SEARCH_REGEX = /^[a-zA-Z]+$/        // nonempty string caps || lowercase 
 
 
 //################ BOOK ROUTES ################ 
@@ -70,6 +71,21 @@ app.put('/books/:ISBN', (req, res) => {
   }
 })
 
+// Search Books:
+app.get('/books', (req, res) => {
+  if(!validateSearch(req, res)) return
+  var keyword = req.query.keyword
+
+  esConn.searchBooks(keyword, ()=>{
+    res.statusCode = 400
+    res.json({ message: 'Malformed Input.' })
+  }, (esBooks) => {
+    if(esBooks.length == 0){ res.statusCode = 204 } 
+    else { res.statusCode = 200 }
+    res.json(esBooks)
+  })
+})
+
 // Retrieve Book:
 app.get('/books/isbn/:ISBN', (req, res) => {
   var ISBN = req.params.ISBN
@@ -112,6 +128,18 @@ function validateBook(req, res) {
   return true
 }
 
+function validateSearch(req, res) {
+
+  if(
+    !req.query.keyword || 
+    !SEARCH_REGEX.test(req.query.keyword)
+  ){
+    res.statusCode = 400
+    res.json({ message: 'Malformed input.' })
+    return false
+  }
+  return true
+}
 
 //################ =+= ################ 
 

@@ -44,8 +44,8 @@ function indexDocument(method, id, document, errorCallback, successCallback) {
       responseBody += chunk;
     });
     response.on('end', function (chunk) {
-      console.log(response.statusCode + ' | ' + 'Response body: ' + responseBody);
-      if(response.statusCode == 404) {
+      console.log('Response body: ' + responseBody);
+      if(response.statusCode == 404 || response.statusCode == 400) {
         if(errorCallback) errorCallback()
       } else {
         if(successCallback) {
@@ -60,6 +60,40 @@ function indexDocument(method, id, document, errorCallback, successCallback) {
   });
 }
 
+function searchBooks(keyword, errorCallback, successCallback) { 
+  var endpoint = new AWS.Endpoint(DOMAIN);
+  var request = new AWS.HttpRequest(endpoint, REGION);
+  request.method = "GET";
+  request.path += INDEX + '/_search' + '?q=' + keyword;
+  request.headers['host'] = DOMAIN;
+  request.headers['Content-Type'] = 'application/json';
+  var credentials = new AWS.EnvironmentCredentials('AWS');
+  var signer = new AWS.Signers.V4(request, 'es');
+  signer.addAuthorization(credentials, new Date());
+  var client = new AWS.HttpClient();
+  client.handleRequest(request, null, function(response) {
+    var responseBody = '';
+    response.on('data', function (chunk) {
+      responseBody += chunk;
+    });
+    response.on('end', function (chunk) {
+      console.log(response.statusCode + ' | Response body: ' + responseBody);
+      if(response.statusCode == 404 || response.statusCode == 400) {
+        if(errorCallback) errorCallback()
+      } else {
+        if(successCallback) {
+          var returnedJson = JSON.parse(responseBody)
+          returnedJson = returnedJson.hits.hits.map((esDoc) => {return esDoc._source})
+          successCallback(returnedJson)
+        }
+      }
+    });
+  }, function(error) {
+    console.log('Error: ' + error);
+    if(errorCallback) errorCallback()
+  });
+}
+
 //################ MODULE EXPORT ################
 
-module.exports = { getBook, putBook, postBook }
+module.exports = { searchBooks, getBook, putBook, postBook }

@@ -57,17 +57,41 @@ def getBookReccomendation(isbn=None):
   if response: 
     return response
 
-  path = '/{}/related-books'.format(isbn)
-  serviceRes = requests.get(RECC_CIRCUIT_BREAKER_HOST+path)
+  path = '/isbn/{}'.format(isbn)
+  esResult = requests.get(BOOK_SERVICE_HOST+path)
+  bookJson = esResult.json()
 
-  if serviceRes.status_code == 204:
+  # ES Book not found
+  if esResult.status_code == 404:
+    return getResponseFor(esResult) 
+  
+  # ES Book found w/relatedTitles
+  if 'relatedTitles' in bookJson:
+    return app.response_class(
+      response=json.dumps(bookJson['relatedTitles']),
+      status=200,
+      mimetype='application/json'
+    )
+  
+  # No relatedTitles
+  path = '/{}/related-books'.format(isbn)
+  breakerRes = requests.get(RECC_CIRCUIT_BREAKER_HOST+path)
+
+  # Reccomendation found
+  if breakerRes.status_code == 200: 
+    bookJson['relatedTitles'] = breakerRes.json()
+    path = '/{}'.format(isbn)
+    serviceRes = requests.put(BOOK_SERVICE_HOST+path, data=bookJson)    
+
+  # No Reccomendation found
+  if breakerRes.status_code == 204:
     return app.response_class(
       response=json.dumps({}),
       status=204,
       mimetype='application/json'
     )
 
-  return getResponseFor(serviceRes)
+  return getResponseFor(breakerRes)
 
 
 @app.route('/books', methods=['POST'])
@@ -118,6 +142,25 @@ def getBook(isbn=None):
 
   return getResponseFor(serviceRes)
 
+
+@app.route('/books', methods=['GET'])
+def searchBooks():
+  response = responseIfInvalidRequest(request)
+  if response: 
+    return response
+
+  keyword = request.args.get('keyword', '')
+  path = '?keyword={}'.format(keyword)
+  serviceRes = requests.get(BOOK_SERVICE_HOST+path)
+
+  if serviceRes.status_code == 204:
+    return app.response_class(
+      response=json.dumps({}),
+      status=204,
+      mimetype='application/json'
+    )
+  
+  return getResponseFor(serviceRes)
 
 # STATUS ROUTE - for liveness check
 
